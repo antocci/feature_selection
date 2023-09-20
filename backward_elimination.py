@@ -70,9 +70,6 @@ def backward_elimination(train, valid, features, cat_features, target):
     print('---' * 12)
 
     best_model = clone(model)
-    best_model.fit(train[best_features], train[target])
+    best_model.fit(train[best_features], train[target], cat_features=list(set(cat_features) & set(best_features)))
 
     return stat_1, stat_2, best_model
-
-
-x = CatBoostClassifier()

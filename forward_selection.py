@@ -53,7 +53,7 @@ def forward_selection(train, valid, features, cat_features, target):
 
     plt.figure(figsize=(16, 9))
     sns.lineplot(data=stat_1, x='names', y='ginis')
-    plt.xticks(rotation=90);
+    plt.xticks(rotation=90)
     plt.show()
 
     num_features = stat_1['ginis'].argmax() + 1
@@ -68,6 +68,7 @@ def forward_selection(train, valid, features, cat_features, target):
     print('---' * 12)
 
     best_model = clone(model)
-    best_model.fit(train[sorted(best_features)], train[target])
+    best_model.fit(train[sorted(best_features)], train[target],
+                   cat_features=list(set(cat_features) & set(best_features)))
 
     return stat_1, stat_2, best_model
