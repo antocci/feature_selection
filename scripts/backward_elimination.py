@@ -2,7 +2,6 @@ import pandas as pd
 from IPython.core.display_functions import display
 from catboost import CatBoostClassifier
 from matplotlib import pyplot as plt
-from sklearn import clone
 from sklearn.metrics import roc_auc_score
 from tqdm import tqdm
 import seaborn as sns
@@ -69,7 +68,4 @@ def backward_elimination(train, valid, features, cat_features, target):
     print('Best features:', ' '.join(best_features))
     print('---' * 12)
 
-    best_model = clone(model)
-    best_model.fit(train[best_features], train[target], cat_features=list(set(cat_features) & set(best_features)))
-
-    return stat_1, stat_2, best_model
+    return stat_1, stat_2
