@@ -6,7 +6,6 @@ This repository contains scripts and Jupyter Notebook examples for performing fo
 
 - [Introduction](#introduction)
 - [Folder Structure](#folder-structure)
-- [Usage](#usage)
 
 ## Introduction
 
