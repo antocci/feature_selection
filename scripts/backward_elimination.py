@@ -9,11 +9,11 @@ import seaborn as sns
 
 def backward_elimination(train, valid, features, cat_features, target):
     stats = []
-
     eliminated_features = []
     best_ginis = []
     # backward elimination
     for iteration in tqdm(range(len(features) - 1)):
+        print('Iteration number', iteration)
         best_gini = None
         worst_feature = None
         stat = {'iteration': iteration}
@@ -24,7 +24,7 @@ def backward_elimination(train, valid, features, cat_features, target):
             X_train = train[sorted(set(features) - set(eliminated_features + [col]))]
             X_valid = valid[sorted(set(features) - set(eliminated_features + [col]))]
 
-            model = CatBoostClassifier(verbose=100, eval_metric='AUC', early_stopping_rounds=60, random_state=42,
+            model = CatBoostClassifier(verbose=0, eval_metric='AUC', early_stopping_rounds=60, random_state=42,
                                        cat_features=list(set(cat_features) & set(X_train.columns)))
             model.fit(X_train, train[target])
             valid_preds = model.predict_proba(X_valid)[:, 1]
@@ -41,7 +41,10 @@ def backward_elimination(train, valid, features, cat_features, target):
         if best_gini:
             eliminated_features.append(worst_feature)
             best_ginis.append(best_gini)
-
+            print('Features to eliminate:')
+            print(eliminated_features)
+            print(best_gini)
+            print('*' * 10)
     stat_2 = pd.DataFrame(stats).T
     stat_2['cnt_nans'] = stat_2.isna().sum(axis=1).values
 
@@ -51,7 +54,7 @@ def backward_elimination(train, valid, features, cat_features, target):
     stat_1 = pd.DataFrame({'names': eliminated_features[::-1], 'ginis': best_ginis[::-1]})
 
     plt.figure(figsize=(16, 9))
-    sns.lineplot(data=stat_1, x='names', y='ginis')
+    sns.lineplot(data=stat_1[::-1], x='names', y='ginis')
     plt.xticks(rotation=90)
     plt.show()
 
@@ -59,7 +62,6 @@ def backward_elimination(train, valid, features, cat_features, target):
     best_gini = stat_1['ginis'].max()
 
     features_to_eliminate = stat_1['names'].iloc[num_features:]
-
     best_features = sorted(set(features) - set(features_to_eliminate))
 
     print('---' * 5, 'info', '---' * 5, sep='')

@@ -14,6 +14,7 @@ def forward_selection(train, valid, features, cat_features, target):
     best_ginis = []
     # forward selection
     for iteration in tqdm(range(len(features))):
+        # print('Iteration number', iteration)
         best_gini = None
         best_feature = None
         stat = {'iteration': iteration}
@@ -24,7 +25,7 @@ def forward_selection(train, valid, features, cat_features, target):
             X_train = train[list(picked_features) + [col]]
             X_valid = valid[list(picked_features) + [col]]
 
-            model = CatBoostClassifier(verbose=100, eval_metric='AUC', early_stopping_rounds=60, random_state=42,
+            model = CatBoostClassifier(verbose=0, eval_metric='AUC', early_stopping_rounds=60, random_state=42,
                                        cat_features=list(set(cat_features) & set(X_train.columns)))
             model.fit(X_train, train[target], eval_set=(X_valid, valid[target]))
             valid_preds = model.predict_proba(X_valid)[:, 1]
@@ -41,6 +42,7 @@ def forward_selection(train, valid, features, cat_features, target):
         if best_gini:
             picked_features.append(best_feature)
             best_ginis.append(best_gini)
+            print('Picked feature:', best_feature)
 
     stat_2 = pd.DataFrame(stats).T
     stat_2['cnt_nans'] = stat_2.isna().sum(axis=1).values
@@ -57,8 +59,8 @@ def forward_selection(train, valid, features, cat_features, target):
 
     num_features = stat_1['ginis'].argmax() + 1
     best_gini = stat_1['ginis'].max()
-
-    best_features = stat_1['names'].iloc[:num_features]
+    features_to_eliminate = stat_1['names'].iloc[num_features:]
+    best_features = sorted(set(features) - set(features_to_eliminate))
 
     print('---' * 5, 'info', '---' * 5, sep='')
     print('Best ginis:', best_gini)
